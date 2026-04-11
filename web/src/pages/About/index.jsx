@@ -71,6 +71,16 @@ const About = () => {
       >
         https://github.com/QuantumNous/new-api
       </a>
+      <br />
+      {t('本站部署版本源码（含二次开发修改，遵循 AGPL v3.0）：')}
+      <a
+        href='https://github.com/reputationly/new-api'
+        target='_blank'
+        rel='noopener noreferrer'
+        className='!text-semi-color-primary'
+      >
+        https://github.com/reputationly/new-api
+      </a>
       <p>
         <a
           href='https://github.com/QuantumNous/new-api'
