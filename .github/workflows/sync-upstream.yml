@@ -65,6 +65,8 @@ jobs:
         continue-on-error: true
         run: |
           git checkout main
+          # 先同步 fork 上任何非上游提交（如 workflow 修改等），避免 push 时 non-fast-forward
+          git pull origin main --no-rebase
           git merge upstream/main \
             --no-edit \
             -m "chore: sync upstream ${{ steps.tag.outputs.new_tag }}"
