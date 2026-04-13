@@ -16,7 +16,7 @@ version: '3.4' # For compatibility with older Docker versions
 
 services:
   new-api:
-    image: crpi-cr910490ec3784-cn-shanghai.personal.cr.aliyuncs.com/reputationly/new-api:latest
+    image: registry.cn-shanghai.aliyuncs.com/reputationly/new-api:latest
     container_name: new-api
     restart: always
     command: --log-dir /app/logs
