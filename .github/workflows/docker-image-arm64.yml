@@ -68,6 +68,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Log in to ACR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ${{ secrets.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
 #      - name: Log in to GHCR
 #        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
 #        with:
@@ -93,6 +100,8 @@ jobs:
           tags: |
             arronlee/new-api:${{ env.TAG }}-${{ matrix.arch }}
             arronlee/new-api:latest-${{ matrix.arch }}
+            ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:${{ env.TAG }}-${{ matrix.arch }}
+            ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:latest-${{ matrix.arch }}
 #            ghcr.io/${{ env.GHCR_REPOSITORY }}:${{ env.TAG }}-${{ matrix.arch }}
 #            ghcr.io/${{ env.GHCR_REPOSITORY }}:latest-${{ matrix.arch }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -137,6 +146,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Log in to ACR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ${{ secrets.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
       - name: Create & push manifest (Docker Hub - version)
         run: |
           docker buildx imagetools create \
@@ -150,6 +166,20 @@ jobs:
             -t arronlee/new-api:latest \
             arronlee/new-api:latest-amd64 \
             arronlee/new-api:latest-arm64
+
+      - name: Create & push manifest (ACR - version)
+        run: |
+          docker buildx imagetools create \
+            -t ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:${TAG} \
+            ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:${TAG}-amd64 \
+            ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:${TAG}-arm64
+
+      - name: Create & push manifest (ACR - latest)
+        run: |
+          docker buildx imagetools create \
+            -t ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:latest \
+            ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:latest-amd64 \
+            ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:latest-arm64
 
       - name: Output manifest digest
         run: |
