@@ -16,12 +16,12 @@ version: '3.4' # For compatibility with older Docker versions
 
 services:
   new-api:
-    image: calciumion/new-api:latest
+    image: arronlee/new-api:latest
     container_name: new-api
     restart: always
     command: --log-dir /app/logs
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     volumes:
       - ./data:/data
       - ./logs:/app/logs
