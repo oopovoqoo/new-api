@@ -10,6 +10,11 @@ permissions:
   contents: write
   issues: write
 
+# 防止同一时间多个实例并发运行（如 schedule 与手动触发重叠）
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: true
+
 jobs:
   sync:
     name: Check & sync upstream
@@ -102,7 +107,9 @@ jobs:
       - name: Push main & create release tag
         if: steps.tag.outputs.new_tag != '' && steps.merge.outcome == 'success'
         run: |
-          git push origin main
-          git tag ${{ steps.tag.outputs.new_tag }}
+          # --force-with-lease: 仅当 origin/main 与预期一致时才强推，防止意外覆盖他人提交
+          git push origin main --force-with-lease
+          # -f: 覆盖 fetch upstream 时已拉取到本地的同名 tag，使其指向 merge 后的 HEAD
+          git tag -f ${{ steps.tag.outputs.new_tag }}
           git push origin ${{ steps.tag.outputs.new_tag }}
           echo "✅ Tag ${{ steps.tag.outputs.new_tag }} pushed — release workflow will start automatically."
