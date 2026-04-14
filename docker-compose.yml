@@ -52,14 +52,14 @@ services:
       retries: 3
 
   redis:
-    image: registry.cn-hangzhou.aliyuncs.com/library/redis:latest
+    image: crpi-xzr81d0490mc3794.cn-shanghai.personal.cr.aliyuncs.com/reputationly/redis:latest
     container_name: redis
     restart: always
     networks:
       - new-api-network
 
   postgres:
-    image: registry.cn-hangzhou.aliyuncs.com/library/postgres:15
+    image: crpi-xzr81d0490mc3794.cn-shanghai.personal.cr.aliyuncs.com/reputationly/postgres:15
     container_name: postgres
     restart: always
     environment:
