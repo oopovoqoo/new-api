@@ -101,6 +101,7 @@ export const usePlaygroundState = () => {
   // 调试状态
   const [debugData, setDebugData] = useState({
     request: null,
+    headers: null,
     response: null,
     timestamp: null,
     previewRequest: null,

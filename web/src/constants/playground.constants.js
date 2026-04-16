@@ -69,6 +69,7 @@ export const DEFAULT_MESSAGES = [
 // ========== UI 相关常量 ==========
 export const DEBUG_TABS = {
   PREVIEW: 'preview',
+  HEADERS: 'headers',
   REQUEST: 'request',
   RESPONSE: 'response',
 };

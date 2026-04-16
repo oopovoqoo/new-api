@@ -1150,6 +1150,7 @@
     "实际模型": "Actual model",
     "实际结算金额：{{symbol}}{{total}}（已包含分组价格调整）": "Actual charge: {{symbol}}{{total}} (group pricing adjustment included)",
     "实际请求体": "Actual request body",
+    "请求头": "Request headers",
     "容器": "Container",
     "容器ID": "Container ID",
     "容器创建失败: ": "Container creation failed: ",
