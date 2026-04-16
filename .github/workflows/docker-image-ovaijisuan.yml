@@ -89,6 +89,11 @@ jobs:
     needs: [build_single_arch]
     runs-on: ubuntu-latest
     steps:
+      - name: Check out (shallow)
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 1
+
       - name: Determine ovaijisuan version
         id: version
         run: |
