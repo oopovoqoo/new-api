@@ -72,8 +72,10 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: true
           tags: |
+            arronlee/new-api:latest-${{ matrix.arch }}
             arronlee/new-api:ovaijisuan-${{ matrix.arch }}
             arronlee/new-api:${{ steps.version.outputs.value }}-${{ matrix.arch }}
+            ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:latest-${{ matrix.arch }}
             ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:ovaijisuan-${{ matrix.arch }}
             ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:${{ steps.version.outputs.value }}-${{ matrix.arch }}
           cache-from: type=gha
@@ -123,6 +125,13 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
+      - name: Create & push manifest (Docker Hub - latest)
+        run: |
+          docker buildx imagetools create \
+            -t arronlee/new-api:latest \
+            arronlee/new-api:latest-amd64 \
+            arronlee/new-api:latest-arm64
+
       - name: Create & push manifest (Docker Hub - ovaijisuan)
         run: |
           docker buildx imagetools create \
@@ -136,6 +145,13 @@ jobs:
             -t arronlee/new-api:${VERSION} \
             arronlee/new-api:${VERSION}-amd64 \
             arronlee/new-api:${VERSION}-arm64
+
+      - name: Create & push manifest (ACR - latest)
+        run: |
+          docker buildx imagetools create \
+            -t ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:latest \
+            ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:latest-amd64 \
+            ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:latest-arm64
 
       - name: Create & push manifest (ACR - ovaijisuan)
         run: |
