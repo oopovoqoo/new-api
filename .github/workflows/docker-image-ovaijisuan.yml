@@ -93,6 +93,8 @@ jobs:
     name: Create multi-arch manifests
     needs: [build_single_arch]
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.value }}
     steps:
       - name: Check out (shallow)
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -155,3 +157,33 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           docker buildx imagetools inspect arronlee/new-api:ovaijisuan >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+
+  create_release:
+    name: Create GitHub Release
+    needs: [create_manifests]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.create_manifests.outputs.version }}
+        run: |
+          gh release create "${VERSION}" \
+            --repo "${{ github.repository }}" \
+            --title "${VERSION}" \
+            --notes "## Docker 镜像
+
+**固定 tag（始终最新）：**
+\`\`\`
+docker pull arronlee/new-api:ovaijisuan
+\`\`\`
+
+**本次版本 tag：**
+\`\`\`
+docker pull arronlee/new-api:${VERSION}
+\`\`\`
+
+> ACR 镜像同步推送，国内服务器建议使用 ACR 地址拉取。" \
+            --latest=false
