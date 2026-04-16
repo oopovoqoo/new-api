@@ -32,13 +32,13 @@ jobs:
       - name: Check out (shallow)
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
-          fetch-depth: 1
-          fetch-tags: true
+          fetch-depth: 0
 
       - name: Determine ovaijisuan version
         id: version
         run: |
-          UPSTREAM=$(git tag --sort=-version:refname | grep '^v' | head -1 || echo "unknown")
+          UPSTREAM=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          [ -z "$UPSTREAM" ] && UPSTREAM="custom"
           VERSION="${UPSTREAM}-ovaijisuan-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
           echo "$VERSION" > VERSION
           echo "value=$VERSION" >> $GITHUB_OUTPUT
@@ -94,13 +94,13 @@ jobs:
       - name: Check out (shallow)
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
-          fetch-depth: 1
-          fetch-tags: true
+          fetch-depth: 0
 
       - name: Determine ovaijisuan version
         id: version
         run: |
-          UPSTREAM=$(git tag --sort=-version:refname | grep '^v' | head -1 || echo "unknown")
+          UPSTREAM=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          [ -z "$UPSTREAM" ] && UPSTREAM="custom"
           VERSION="${UPSTREAM}-ovaijisuan-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
           echo "value=$VERSION" >> $GITHUB_OUTPUT
           echo "VERSION=$VERSION" >> $GITHUB_ENV
