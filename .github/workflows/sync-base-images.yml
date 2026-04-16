@@ -32,3 +32,9 @@ jobs:
           docker pull redis:latest
           docker tag redis:latest ${{ secrets.ACR_REGISTRY }}/reputationly/redis:latest
           docker push ${{ secrets.ACR_REGISTRY }}/reputationly/redis:latest
+
+      - name: Sync containrrr/watchtower:latest
+        run: |
+          docker pull containrrr/watchtower:latest
+          docker tag containrrr/watchtower:latest ${{ secrets.ACR_REGISTRY }}/reputationly/watchtower:latest
+          docker push ${{ secrets.ACR_REGISTRY }}/reputationly/watchtower:latest
