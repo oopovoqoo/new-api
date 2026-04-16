@@ -12,8 +12,30 @@ on:
         required: false
 
 jobs:
+  prepare:
+    name: Compute version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine ovaijisuan version
+        id: version
+        run: |
+          UPSTREAM=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          [ -z "$UPSTREAM" ] && UPSTREAM="custom"
+          SHA=$(git rev-parse --short=8 HEAD)
+          VERSION="${UPSTREAM}-ovaijisuan-$(date -u +'%Y%m%d')-${SHA}"
+          echo "value=$VERSION" >> $GITHUB_OUTPUT
+          echo "Computed version: $VERSION"
+
   build_single_arch:
     name: Build & push (${{ matrix.arch }}) [native]
+    needs: [prepare]
     strategy:
       fail-fast: false
       matrix:
@@ -29,21 +51,15 @@ jobs:
       packages: write
       contents: read
       id-token: write
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - name: Check out (shallow)
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
 
-      - name: Determine ovaijisuan version
-        id: version
+      - name: Write VERSION file
         run: |
-          UPSTREAM=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
-          [ -z "$UPSTREAM" ] && UPSTREAM="custom"
-          VERSION="${UPSTREAM}-ovaijisuan-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
           echo "$VERSION" > VERSION
-          echo "value=$VERSION" >> $GITHUB_OUTPUT
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Publishing version: $VERSION for ${{ matrix.arch }}"
 
       - name: Set up Docker Buildx
@@ -72,10 +88,10 @@ jobs:
           tags: |
             arronlee/new-api:latest-${{ matrix.arch }}
             arronlee/new-api:ovaijisuan-${{ matrix.arch }}
-            arronlee/new-api:${{ steps.version.outputs.value }}-${{ matrix.arch }}
+            arronlee/new-api:${{ needs.prepare.outputs.version }}-${{ matrix.arch }}
             ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:latest-${{ matrix.arch }}
             ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:ovaijisuan-${{ matrix.arch }}
-            ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:${{ steps.version.outputs.value }}-${{ matrix.arch }}
+            ${{ secrets.ACR_REGISTRY }}/reputationly/new-api:${{ needs.prepare.outputs.version }}-${{ matrix.arch }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: mode=max
@@ -91,25 +107,11 @@ jobs:
 
   create_manifests:
     name: Create multi-arch manifests
-    needs: [build_single_arch]
+    needs: [prepare, build_single_arch]
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.value }}
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - name: Check out (shallow)
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
-
-      - name: Determine ovaijisuan version
-        id: version
-        run: |
-          UPSTREAM=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
-          [ -z "$UPSTREAM" ] && UPSTREAM="custom"
-          VERSION="${UPSTREAM}-ovaijisuan-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
-          echo "value=$VERSION" >> $GITHUB_OUTPUT
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
       - name: Log in to Docker Hub
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
@@ -174,21 +176,13 @@ jobs:
 
   build_binaries:
     name: Build binaries
+    needs: [prepare]
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - name: Check out
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
-
-      - name: Determine ovaijisuan version
-        id: version
-        run: |
-          UPSTREAM=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
-          [ -z "$UPSTREAM" ] && UPSTREAM="custom"
-          VERSION="${UPSTREAM}-ovaijisuan-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
-          echo "value=$VERSION" >> $GITHUB_OUTPUT
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
@@ -236,7 +230,7 @@ jobs:
 
   create_release:
     name: Create GitHub Release
-    needs: [create_manifests, build_binaries]
+    needs: [prepare, create_manifests, build_binaries]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -250,7 +244,7 @@ jobs:
       - name: Create release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ needs.create_manifests.outputs.version }}
+          VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           cat > notes.md << EOF
           ## Docker 镜像
