@@ -54,6 +54,7 @@ const OtherSetting = () => {
   let [loading, setLoading] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [upgradeElapsed, setUpgradeElapsed] = useState(0);
   const [statusState, statusDispatch] = useContext(StatusContext);
   const [updateData, setUpdateData] = useState({
     tag_name: '',
@@ -295,6 +296,15 @@ const OtherSetting = () => {
     getOptions();
   }, []);
 
+  useEffect(() => {
+    if (!isUpdating) {
+      setUpgradeElapsed(0);
+      return;
+    }
+    const timer = setInterval(() => setUpgradeElapsed((s) => s + 1), 1000);
+    return () => clearInterval(timer);
+  }, [isUpdating]);
+
   // Function to open GitHub release page
   const openGitHubRelease = () => {
     window.open(
@@ -303,12 +313,12 @@ const OtherSetting = () => {
     );
   };
 
-  const pollUntilAlive = async (maxAttempts = 60, intervalMs = 2000) => {
+  const pollUntilAlive = async (maxAttempts = 90, intervalMs = 3000) => {
     const previousVersion = statusState?.status?.version;
     for (let i = 0; i < maxAttempts; i++) {
       await new Promise((resolve) => setTimeout(resolve, intervalMs));
       try {
-        const res = await API.get('/api/status');
+        const res = await API.get('/api/status', { skipErrorHandler: true });
         if (res?.data?.success) {
           const newVersion = res?.data?.data?.version;
           if (newVersion && newVersion !== previousVersion) {
@@ -317,10 +327,10 @@ const OtherSetting = () => {
             setTimeout(() => window.location.reload(), 1500);
             return;
           }
-          // version unchanged, container may have just restarted, keep polling
+          // 版本未变，新容器可能还未完全就绪，继续轮询
         }
       } catch {
-        // service still restarting, keep polling
+        // 服务重启中，继续轮询
       }
     }
     showError(t('服务未能在预期时间内恢复，请手动刷新页面'));
@@ -382,6 +392,15 @@ const OtherSetting = () => {
                       {isUpdating ? t('升级中...') : t('检查更新')}
                     </Button>
                   </Space>
+                  {isUpdating && (
+                    <Banner
+                      type='warning'
+                      fullMode={false}
+                      description={t('服务升级中，请勿关闭页面，已等待 {{elapsed}} 秒', { elapsed: upgradeElapsed })}
+                      closeIcon={null}
+                      style={{ marginTop: 8 }}
+                    />
+                  )}
                 </Col>
               </Row>
               <Row>

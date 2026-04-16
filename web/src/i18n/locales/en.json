@@ -1969,6 +1969,7 @@
     "升级中...": "Upgrading...",
     "升级成功，页面即将刷新": "Upgrade successful, page will refresh shortly",
     "升级指令已发送，等待服务重启...": "Upgrade command sent, waiting for service to restart...",
+    "服务升级中，请勿关闭页面，已等待 {{elapsed}} 秒": "Upgrading service, do not close the page. Elapsed: {{elapsed}}s",
     "升级请求失败，请检查 Watchtower 是否已配置": "Upgrade request failed, please check if Watchtower is configured",
     "服务未能在预期时间内恢复，请手动刷新页面": "Service did not recover in time, please refresh the page manually",
     "检测到 FluentRead（流畅阅读）": "FluentRead (smooth reading) detected",

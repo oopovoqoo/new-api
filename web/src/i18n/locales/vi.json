@@ -1935,6 +1935,7 @@
     "升级中...": "Đang nâng cấp...",
     "升级成功，页面即将刷新": "Nâng cấp thành công, trang sẽ tải lại",
     "升级指令已发送，等待服务重启...": "Lệnh nâng cấp đã được gửi, đang chờ dịch vụ khởi động lại...",
+    "服务升级中，请勿关闭页面，已等待 {{elapsed}} 秒": "Đang nâng cấp dịch vụ, đừng đóng trang. Đã chờ: {{elapsed}}s",
     "升级请求失败，请检查 Watchtower 是否已配置": "Yêu cầu nâng cấp thất bại, kiểm tra xem Watchtower đã được cấu hình chưa",
     "服务未能在预期时间内恢复，请手动刷新页面": "Dịch vụ không phục hồi kịp thời, vui lòng tải lại trang thủ công",
     "检测到 FluentRead（流畅阅读）": "Đã phát hiện FluentRead (đọc trôi chảy)",

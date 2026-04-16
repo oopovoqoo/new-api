@@ -1952,6 +1952,7 @@
     "升级中...": "Mise à jour en cours...",
     "升级成功，页面即将刷新": "Mise à jour réussie, la page va se rafraîchir",
     "升级指令已发送，等待服务重启...": "Commande de mise à jour envoyée, attente du redémarrage...",
+    "服务升级中，请勿关闭页面，已等待 {{elapsed}} 秒": "Mise à jour en cours, ne fermez pas la page. Temps écoulé : {{elapsed}}s",
     "升级请求失败，请检查 Watchtower 是否已配置": "Échec de la mise à jour, vérifiez si Watchtower est configuré",
     "服务未能在预期时间内恢复，请手动刷新页面": "Le service n'a pas récupéré à temps, veuillez rafraîchir la page manuellement",
     "检测到 FluentRead（流畅阅读）": "FluentRead détecté",
