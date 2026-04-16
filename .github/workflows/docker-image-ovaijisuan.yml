@@ -2,8 +2,6 @@ name: Publish Docker image (ovaijisuan)
 
 on:
   push:
-    branches:
-      - dev
     tags:
       - 'v*'
       - '!*-alpha*'
