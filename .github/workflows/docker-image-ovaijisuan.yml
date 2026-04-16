@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - ovaijisuan
+    tags:
+      - 'v*'
+      - '!*-alpha*'
   workflow_dispatch:
     inputs:
       name:
