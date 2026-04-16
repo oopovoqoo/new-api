@@ -38,7 +38,7 @@ jobs:
       - name: Determine ovaijisuan version
         id: version
         run: |
-          UPSTREAM=$(git describe --tags --abbrev=0 2>/dev/null || echo "unknown")
+          UPSTREAM=$(git tag --sort=-version:refname | grep '^v' | head -1 || echo "unknown")
           VERSION="${UPSTREAM}-ovaijisuan-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
           echo "$VERSION" > VERSION
           echo "value=$VERSION" >> $GITHUB_OUTPUT
@@ -100,7 +100,7 @@ jobs:
       - name: Determine ovaijisuan version
         id: version
         run: |
-          UPSTREAM=$(git describe --tags --abbrev=0 2>/dev/null || echo "unknown")
+          UPSTREAM=$(git tag --sort=-version:refname | grep '^v' | head -1 || echo "unknown")
           VERSION="${UPSTREAM}-ovaijisuan-$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
           echo "value=$VERSION" >> $GITHUB_OUTPUT
           echo "VERSION=$VERSION" >> $GITHUB_ENV
