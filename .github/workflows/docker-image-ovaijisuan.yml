@@ -170,20 +170,24 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.create_manifests.outputs.version }}
         run: |
+          cat > notes.md << EOF
+          ## Docker 镜像
+
+          **固定 tag（始终最新）：**
+          \`\`\`
+          docker pull arronlee/new-api:ovaijisuan
+          \`\`\`
+
+          **本次版本 tag：**
+          \`\`\`
+          docker pull arronlee/new-api:${VERSION}
+          \`\`\`
+
+          > ACR 镜像同步推送，国内服务器建议使用 ACR 地址拉取。
+          EOF
+
           gh release create "${VERSION}" \
             --repo "${{ github.repository }}" \
             --title "${VERSION}" \
-            --notes "## Docker 镜像
-
-**固定 tag（始终最新）：**
-\`\`\`
-docker pull arronlee/new-api:ovaijisuan
-\`\`\`
-
-**本次版本 tag：**
-\`\`\`
-docker pull arronlee/new-api:${VERSION}
-\`\`\`
-
-> ACR 镜像同步推送，国内服务器建议使用 ACR 地址拉取。" \
+            --notes-file notes.md \
             --latest=false
