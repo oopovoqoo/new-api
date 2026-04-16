@@ -53,6 +53,7 @@ const OtherSetting = () => {
   });
   let [loading, setLoading] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [statusState, statusDispatch] = useContext(StatusContext);
   const [updateData, setUpdateData] = useState({
     tag_name: '',
@@ -302,6 +303,49 @@ const OtherSetting = () => {
     );
   };
 
+  const pollUntilAlive = async (maxAttempts = 60, intervalMs = 2000) => {
+    const previousVersion = statusState?.status?.version;
+    for (let i = 0; i < maxAttempts; i++) {
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
+      try {
+        const res = await API.get('/api/status');
+        if (res?.data?.success) {
+          const newVersion = res?.data?.data?.version;
+          if (newVersion && newVersion !== previousVersion) {
+            showSuccess(t('升级成功，页面即将刷新'));
+            setIsUpdating(false);
+            setTimeout(() => window.location.reload(), 1500);
+            return;
+          }
+          // version unchanged, container may have just restarted, keep polling
+        }
+      } catch {
+        // service still restarting, keep polling
+      }
+    }
+    showError(t('服务未能在预期时间内恢复，请手动刷新页面'));
+    setIsUpdating(false);
+  };
+
+  const handleUpdate = async () => {
+    setIsUpdating(true);
+    setShowUpdateModal(false);
+    try {
+      const res = await API.post('/api/system/update');
+      const { success, message } = res.data;
+      if (!success) {
+        showError(message);
+        setIsUpdating(false);
+        return;
+      }
+      showSuccess(t('升级指令已发送，等待服务重启...'));
+      pollUntilAlive();
+    } catch (error) {
+      showError(t('升级请求失败，请检查 Watchtower 是否已配置'));
+      setIsUpdating(false);
+    }
+  };
+
   const getStartTimeString = () => {
     const timestamp = statusState?.status?.start_time;
     return statusState.status ? timestamp2string(timestamp) : '';
@@ -332,9 +376,10 @@ const OtherSetting = () => {
                     <Button
                       type='primary'
                       onClick={checkUpdate}
-                      loading={loadingInput['CheckUpdate']}
+                      loading={loadingInput['CheckUpdate'] || isUpdating}
+                      disabled={isUpdating}
                     >
-                      {t('检查更新')}
+                      {isUpdating ? t('升级中...') : t('检查更新')}
                     </Button>
                   </Space>
                 </Col>
@@ -499,13 +544,21 @@ const OtherSetting = () => {
         footer={[
           <Button
             key='details'
-            type='primary'
             onClick={() => {
               setShowUpdateModal(false);
               openGitHubRelease();
             }}
           >
             {t('详情')}
+          </Button>,
+          <Button
+            key='update'
+            type='primary'
+            loading={isUpdating}
+            disabled={isUpdating}
+            onClick={handleUpdate}
+          >
+            {t('立即安装')}
           </Button>,
         ]}
       >
